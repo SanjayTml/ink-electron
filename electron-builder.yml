@@ -1,0 +1,12 @@
+appId: com.example.nextron
+productName: Unison • Ink
+copyright: Copyright © 2018 Unison
+directories:
+  output: dist
+  buildResources: resources
+files:
+  - from: .
+    filter:
+      - package.json
+      - app
+publish: null
