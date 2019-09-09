@@ -1,6 +1,6 @@
-appId: com.example.nextron
-productName: Unison • Ink
-copyright: Copyright © 2018 Unison
+appId: com.ununu.ink
+productName: ununu • Ink
+copyright: Copyright © 2018 ununu
 directories:
   output: dist
   buildResources: resources
