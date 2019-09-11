@@ -1,11 +1,14 @@
 import { remote } from 'electron';
 import React, { useCallback } from 'react';
 import Head from 'next/head';
-import { createGlobalStyle } from 'styled-components';
-import { Row, Col, H3, Button } from '@bootstrap-styled/v4';
+import { default as styled, createGlobalStyle } from 'styled-components';
+import { Container, Row, Col, H3, Button } from '@bootstrap-styled/v4';
 import BootstrapProvider from '@bootstrap-styled/provider/lib/BootstrapProvider';
 import { makeTheme } from 'bootstrap-styled/lib/theme';
-require('@ibm/plex/css/ibm-plex.css');
+import { backgroundSecondary } from '../layout/colors';
+
+import Logo from '../components/Logo';
+import '@ibm/plex/css/ibm-plex.css';
 
 const inkTheme = makeTheme({
   '$font-family-sans-serif:':
@@ -14,7 +17,7 @@ const inkTheme = makeTheme({
   '$text-color': '#fff',
   '$headings-color': '#fff',
   '$body-bg': '#000',
-  '$btn-primary-bg': '#446487',
+  '$brand-primary': '#446487',
 });
 
 const GlobalStyle = createGlobalStyle`
@@ -30,6 +33,14 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
+const Wrapper = styled(Container)`
+  background-color: ${backgroundSecondary};
+`;
+
+const Heading = styled(H3)`
+  display: inline-block;
+`;
+
 const Home = () => {
   const handleChooseRepository = useCallback(async () => {
     console.log(
@@ -43,24 +54,30 @@ const Home = () => {
 
   return (
     <BootstrapProvider theme={inkTheme}>
-      <React.Fragment>
-        <GlobalStyle />
+      <GlobalStyle />
 
-        <Head>
-          <title>ununu • Ink</title>
-        </Head>
+      <Head>
+        <title>ununu • Ink</title>
+      </Head>
+
+      <Container fluid>
         <Row>
           <Col md={12}>
-            <H3>Ink</H3>
+            <Logo size={25} />
+            <Heading>Ink</Heading>
           </Col>
         </Row>
 
-        <Row>
+        <Row className="align-items-center">
           <Col md={12}>
-            <Button onClick={handleChooseRepository}>Choose Repository</Button>
+            <Wrapper>
+              <Button onClick={handleChooseRepository}>
+                Choose Repository
+              </Button>
+            </Wrapper>
           </Col>
         </Row>
-      </React.Fragment>
+      </Container>
     </BootstrapProvider>
   );
 };
