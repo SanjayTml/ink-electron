@@ -2,6 +2,7 @@ import { app, ipcMain } from 'electron';
 import serve from 'electron-serve';
 import * as Store from 'electron-store';
 import { createWindow, exitOnChange } from './helpers';
+import { validateProject } from './lib/project';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -23,11 +24,27 @@ ipcMain.on('get-projects', (event, arg) => {
   event.returnValue = store.get('projects') || [];
 });
 
-ipcMain.on('add-project', (event, arg) => {
-  const projects = store.get('projects') || [];
-  projects.push(arg);
-  store.set('projects', projects);
+ipcMain.on('reset-projects', event => {
+  store.set('projects', []);
+  event.returnValue = null;
 });
+
+ipcMain.on('add-project', (event, projectPath) => {
+  const projects = store.get('projects') || [];
+  const { name, id } = validateProject(projectPath);
+
+  console.log(name, id);
+
+  projects.push({
+    name,
+    id,
+    path: projectPath,
+  });
+
+  store.set('projects', projects);
+  event.returnValue = null;
+});
+
 (async () => {
   // Can't use app.on('ready',...)
   // https://github.com/sindresorhus/electron-serve/issues/15

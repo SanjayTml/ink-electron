@@ -20,7 +20,8 @@
     "electron-serve": "^0.3.0",
     "electron-store": "^4.0.0",
     "nodegit": "^0.25.1",
-    "styled-components": "^4.3.2"
+    "styled-components": "^4.3.2",
+    "uuid": "^3.3.3"
   },
   "devDependencies": {
     "electron": "^6.0.7",

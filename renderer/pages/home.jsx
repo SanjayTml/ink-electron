@@ -9,6 +9,7 @@ import {
   H3,
   H5,
   Button,
+  ButtonGroup,
   Jumbotron,
 } from '@bootstrap-styled/v4';
 import BootstrapProvider from '@bootstrap-styled/provider/lib/BootstrapProvider';
@@ -53,6 +54,10 @@ const Message = styled.p`
   color: ${complementarySecondary};
 `;
 
+const ProjectName = styled.p`
+  color: #fff;
+`;
+
 const Home = () => {
   const [projects, setProjects] = useState([]);
 
@@ -63,14 +68,21 @@ const Home = () => {
   }, []);
 
   const handleChooseRepository = useCallback(async () => {
-    console.log(
-      JSON.stringify(
-        await remote.dialog.showOpenDialog({
-          properties: ['openDirectory'],
-        })
-      )
-    );
-  });
+    const { canceled, filePaths } = await remote.dialog.showOpenDialog({
+      properties: ['openDirectory'],
+    });
+
+    if (canceled || filePaths.length !== 1) {
+      return;
+    }
+
+    const projectPath = filePaths[0];
+    ipcRenderer.sendSync('add-project', projectPath);
+  }, []);
+
+  const handleResetProjects = useCallback(() => {
+    ipcRenderer.sendSync('reset-projects');
+  }, []);
 
   return (
     <BootstrapProvider theme={inkTheme}>
@@ -96,10 +108,12 @@ const Home = () => {
           </Row>
 
           {projects.length > 0 ? (
-            projects.map(project => (
-              <Row>
+            projects.map(({ id, name, path }) => (
+              <Row key={`project-${id}`}>
                 <Col md={12}>
-                  <p>{project.name}</p>
+                  <ProjectName>
+                    {name} <code>{path}</code>
+                  </ProjectName>
                 </Col>
               </Row>
             ))
@@ -113,8 +127,11 @@ const Home = () => {
 
           <Row>
             <Col md={12}>
-              <Button onClick={handleChooseRepository}>
-                Choose Repository
+              <Button className="mr-2" onClick={handleChooseRepository}>
+                Add Repository
+              </Button>
+              <Button className="mr-2" onClick={handleResetProjects}>
+                Reset Projects
               </Button>
             </Col>
           </Row>
