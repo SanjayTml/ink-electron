@@ -15,11 +15,9 @@ import {
 import BootstrapProvider from '@bootstrap-styled/provider/lib/BootstrapProvider';
 import { makeTheme } from 'bootstrap-styled/lib/theme';
 import { backgroundSecondary, complementarySecondary } from '../layout/colors';
-
+import useProjects from '../effects/useProjects';
 import Logo from '../components/Logo';
 import '@ibm/plex/css/ibm-plex.css';
-
-const ipcRenderer = electron.ipcRenderer || false;
 
 const inkTheme = makeTheme({
   '$font-family-sans-serif:':
@@ -31,6 +29,8 @@ const inkTheme = makeTheme({
   '$brand-primary': '#446487',
   '$jumbotron-bg': backgroundSecondary,
 });
+
+const ipcRenderer = electron.ipcRenderer || false;
 
 const GlobalStyle = createGlobalStyle`
   html, body {
@@ -59,13 +59,8 @@ const ProjectName = styled.p`
 `;
 
 const Home = () => {
-  const [projects, setProjects] = useState([]);
-
-  useEffect(() => {
-    if (ipcRenderer) {
-      setProjects(ipcRenderer.sendSync('get-projects'));
-    }
-  }, []);
+  const projects = useProjects();
+  console.log(projects);
 
   const handleChooseRepository = useCallback(async () => {
     const { canceled, filePaths } = await remote.dialog.showOpenDialog({
@@ -77,11 +72,11 @@ const Home = () => {
     }
 
     const projectPath = filePaths[0];
-    ipcRenderer.sendSync('add-project', projectPath);
+    if (ipcRenderer) ipcRenderer.send('add-project', projectPath);
   }, []);
 
   const handleResetProjects = useCallback(() => {
-    ipcRenderer.sendSync('reset-projects');
+    if (ipcRenderer) ipcRenderer.send('reset-projects');
   }, []);
 
   return (

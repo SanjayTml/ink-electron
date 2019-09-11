@@ -1,9 +1,9 @@
+import { resolve as resolvePath } from 'path';
 import { app, ipcMain } from 'electron';
 import serve from 'electron-serve';
 import * as Store from 'electron-store';
 import { createWindow, exitOnChange } from './helpers';
 import { validateProject } from './lib/project';
-
 const isProd = process.env.NODE_ENV === 'production';
 
 if (isProd) {
@@ -20,29 +20,47 @@ ipcMain.on('get-base-url', event => {
   event.returnValue = baseUrl;
 });
 
-ipcMain.on('get-projects', (event, arg) => {
-  event.returnValue = store.get('projects') || [];
-});
+const respondWithProjects = event => {
+  const projects = store.get('projects') || [];
+  event.reply('projects-changed', projects);
+};
+
+ipcMain.on('fetch-projects', event => respondWithProjects(event));
 
 ipcMain.on('reset-projects', event => {
   store.set('projects', []);
-  event.returnValue = null;
+  respondWithProjects(event);
 });
 
-ipcMain.on('add-project', (event, projectPath) => {
+ipcMain.on('add-project', async (event, projectPath) => {
   const projects = store.get('projects') || [];
-  const { name, id } = validateProject(projectPath);
+  const normalizedPath = resolvePath(projectPath);
 
-  console.log(name, id);
+  if (projects.find(project => project.path === normalizedPath)) {
+    // TODO: build an error message ipc bus to the renderer
+    console.error('ALREADY EXISTS', normalizedPath);
+    return;
+  }
+
+  let name, id;
+
+  try {
+    const project = await validateProject(projectPath);
+    id = project.id;
+    name = project.name;
+  } catch (err) {
+    console.error(err);
+    return;
+  }
 
   projects.push({
-    name,
     id,
+    name,
     path: projectPath,
   });
 
   store.set('projects', projects);
-  event.returnValue = null;
+  respondWithProjects(event);
 });
 
 (async () => {
