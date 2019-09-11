@@ -2,10 +2,18 @@ import { remote } from 'electron';
 import React, { useCallback } from 'react';
 import Head from 'next/head';
 import { default as styled, createGlobalStyle } from 'styled-components';
-import { Container, Row, Col, H3, Button } from '@bootstrap-styled/v4';
+import {
+  Container,
+  Row,
+  Col,
+  H3,
+  H5,
+  Button,
+  Jumbotron,
+} from '@bootstrap-styled/v4';
 import BootstrapProvider from '@bootstrap-styled/provider/lib/BootstrapProvider';
 import { makeTheme } from 'bootstrap-styled/lib/theme';
-import { backgroundSecondary } from '../layout/colors';
+import { backgroundSecondary, complementarySecondary } from '../layout/colors';
 
 import Logo from '../components/Logo';
 import '@ibm/plex/css/ibm-plex.css';
@@ -18,6 +26,7 @@ const inkTheme = makeTheme({
   '$headings-color': '#fff',
   '$body-bg': '#000',
   '$brand-primary': '#446487',
+  '$jumbotron-bg': backgroundSecondary,
 });
 
 const GlobalStyle = createGlobalStyle`
@@ -33,12 +42,13 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-const Wrapper = styled(Container)`
-  background-color: ${backgroundSecondary};
-`;
-
 const Heading = styled(H3)`
   display: inline-block;
+  margin-left: 10px;
+`;
+
+const Message = styled.p`
+  color: ${complementarySecondary};
 `;
 
 const Home = () => {
@@ -60,23 +70,35 @@ const Home = () => {
         <title>ununu • Ink</title>
       </Head>
 
-      <Container fluid>
+      <Container>
         <Row>
-          <Col md={12}>
-            <Logo size={25} />
+          <Col md={12} className="py-3">
+            <Logo size={22} />
             <Heading>Ink</Heading>
           </Col>
         </Row>
 
-        <Row className="align-items-center">
-          <Col md={12}>
-            <Wrapper>
+        <Jumbotron className="py-3">
+          <Row>
+            <Col md={12}>
+              <H5>Your Projects</H5>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col md={12}>
+              <Message>You have no active projects.</Message>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col md={12}>
               <Button onClick={handleChooseRepository}>
                 Choose Repository
               </Button>
-            </Wrapper>
-          </Col>
-        </Row>
+            </Col>
+          </Row>
+        </Jumbotron>
       </Container>
     </BootstrapProvider>
   );
