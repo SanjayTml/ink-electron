@@ -1,5 +1,5 @@
-import { remote } from 'electron';
-import React, { useCallback } from 'react';
+import electron, { remote } from 'electron';
+import React, { useCallback, useEffect, useState } from 'react';
 import Head from 'next/head';
 import { default as styled, createGlobalStyle } from 'styled-components';
 import {
@@ -17,6 +17,8 @@ import { backgroundSecondary, complementarySecondary } from '../layout/colors';
 
 import Logo from '../components/Logo';
 import '@ibm/plex/css/ibm-plex.css';
+
+const ipcRenderer = electron.ipcRenderer || false;
 
 const inkTheme = makeTheme({
   '$font-family-sans-serif:':
@@ -52,6 +54,14 @@ const Message = styled.p`
 `;
 
 const Home = () => {
+  const [projects, setProjects] = useState([]);
+
+  useEffect(() => {
+    if (ipcRenderer) {
+      setProjects(ipcRenderer.sendSync('get-projects'));
+    }
+  }, []);
+
   const handleChooseRepository = useCallback(async () => {
     console.log(
       JSON.stringify(
@@ -85,11 +95,21 @@ const Home = () => {
             </Col>
           </Row>
 
-          <Row>
-            <Col md={12}>
-              <Message>You have no active projects.</Message>
-            </Col>
-          </Row>
+          {projects.length > 0 ? (
+            projects.map(project => (
+              <Row>
+                <Col md={12}>
+                  <p>{project.name}</p>
+                </Col>
+              </Row>
+            ))
+          ) : (
+            <Row>
+              <Col md={12}>
+                <Message>You have no active projects.</Message>
+              </Col>
+            </Row>
+          )}
 
           <Row>
             <Col md={12}>

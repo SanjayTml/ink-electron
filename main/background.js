@@ -1,5 +1,6 @@
 import { app, ipcMain } from 'electron';
 import serve from 'electron-serve';
+import * as Store from 'electron-store';
 import { createWindow, exitOnChange } from './helpers';
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -11,12 +12,22 @@ if (isProd) {
   app.setPath('userData', `${app.getPath('userData')} (development)`);
 }
 
+const store = new Store({ name: 'data' });
 const baseUrl = isProd ? 'app://./' : 'http://localhost:8888';
 
-ipcMain.on('get-base-url', (event) => {
+ipcMain.on('get-base-url', event => {
   event.returnValue = baseUrl;
 });
 
+ipcMain.on('get-projects', (event, arg) => {
+  event.returnValue = store.get('projects') || [];
+});
+
+ipcMain.on('add-project', (event, arg) => {
+  const projects = store.get('projects') || [];
+  projects.push(arg);
+  store.set('projects', projects);
+});
 (async () => {
   // Can't use app.on('ready',...)
   // https://github.com/sindresorhus/electron-serve/issues/15
