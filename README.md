@@ -1,39 +1,9 @@
-<p align="center"><img src="https://i.imgur.com/TXLXR6J.png"></p>
+# Ink
 
-## Caution When Production Build
-
-It works **only development mode**.
-
-We can't use API routes if the api url is `localhost` (the development server itself) when production!
-
-It is possible to use **only external** API urls with Electron.
+Experimental [Electron](https://electronjs.org/) application (using [nextron](https://github.com/saltyshiomix/nextron)) for our "Git for Music" P2P collaboration and tracking platform.
 
 ## Usage
 
-### Create an App
+Install all dependencies via `npm install` (tried with Node.js 12.4). Run the development server with `npm run dev`, and build packages with `npm run build`. You may need to specify respective packaging targets.
 
-```bash
-# with `nextron`
-$ nextron init my-app --example api-routes
-
-# with npx
-$ npx create-nextron-app my-app --example api-routes
-
-# with yarn
-$ yarn create nextron-app my-app --example api-routes
-
-# with pnpx
-$ pnpx create-nextron-app my-app --example api-routes
-```
-
-### Use it
-
-```bash
-$ cd my-app
-
-# Install dependencies
-$ yarn (or `npm install`)
-
-# Run development mode
-$ yarn dev (or `npm run dev`)
-```
+If some errors occur, especially due to native bindings, try to reinstall and rebuild all dependencies via `npm ci`.
