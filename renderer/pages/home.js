@@ -1,5 +1,5 @@
 import electron, { remote } from 'electron';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import Head from 'next/head';
 import { default as styled, createGlobalStyle } from 'styled-components';
 import {
@@ -9,7 +9,6 @@ import {
   H3,
   H5,
   Button,
-  ButtonGroup,
   Jumbotron,
 } from '@bootstrap-styled/v4';
 import BootstrapProvider from '@bootstrap-styled/provider/lib/BootstrapProvider';
