@@ -1,9 +1,11 @@
 import { resolve as resolvePath } from 'path';
-import { app, ipcMain } from 'electron';
+import { app } from 'electron';
 import serve from 'electron-serve';
 import * as Store from 'electron-store';
+import { ipcMain as ipc } from 'electron-better-ipc';
 import { createWindow, exitOnChange } from './helpers';
-import { validateProject } from './lib/project';
+import { getProjectState, validateProject } from './lib/project';
+
 const isProd = process.env.NODE_ENV === 'production';
 
 if (isProd) {
@@ -14,26 +16,19 @@ if (isProd) {
 }
 
 const store = new Store({ name: 'data' });
-const baseUrl = isProd ? 'app://./' : 'http://localhost:8888';
-
-ipcMain.on('get-base-url', event => {
-  event.returnValue = baseUrl;
-});
-
-const respondWithProjects = event => {
-  const projects = store.get('projects') || [];
-  event.reply('projects-changed', projects);
-};
-
-ipcMain.on('fetch-projects', event => respondWithProjects(event));
-
-ipcMain.on('reset-projects', event => {
+if (!store.get('projects')) {
   store.set('projects', []);
-  respondWithProjects(event);
+}
+
+ipc.answerRenderer('fetch-projects', () => store.get('projects'));
+
+ipc.answerRenderer('reset-projects', () => {
+  store.set('projects', []);
+  return store.get('projects');
 });
 
-ipcMain.on('add-project', async (event, projectPath) => {
-  const projects = store.get('projects') || [];
+ipc.answerRenderer('add-project', async projectPath => {
+  const projects = store.get('projects');
   const normalizedPath = resolvePath(projectPath);
 
   if (projects.find(project => project.path === normalizedPath)) {
@@ -60,8 +55,13 @@ ipcMain.on('add-project', async (event, projectPath) => {
   });
 
   store.set('projects', projects);
-  respondWithProjects(event);
+  return store.get('projects');
 });
+
+ipc.answerRenderer(
+  'get-project-state',
+  async projectPath => await getProjectState(projectPath)
+);
 
 (async () => {
   // Can't use app.on('ready',...)

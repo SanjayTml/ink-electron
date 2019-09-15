@@ -1,53 +1,22 @@
-import electron, { remote } from 'electron';
+import { remote } from 'electron';
+import { ipcRenderer as ipc } from 'electron-better-ipc';
 import React, { useCallback } from 'react';
 import Head from 'next/head';
-import { default as styled, createGlobalStyle } from 'styled-components';
+import Link from 'next/link';
+import { default as styled } from 'styled-components';
 import {
   Container,
   Row,
   Col,
-  H3,
   H5,
   Button,
   Jumbotron,
 } from '@bootstrap-styled/v4';
-import BootstrapProvider from '@bootstrap-styled/provider/lib/BootstrapProvider';
-import { makeTheme } from 'bootstrap-styled/lib/theme';
-import { backgroundSecondary, complementarySecondary } from '../layout/colors';
+import { complementarySecondary } from '../layout/colors';
 import useProjects from '../effects/useProjects';
+import Heading from '../components/Heading';
 import Logo from '../components/Logo';
-import '@ibm/plex/css/ibm-plex.css';
-
-const inkTheme = makeTheme({
-  '$font-family-sans-serif:':
-    "'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif",
-  '$font-family-base': "'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif",
-  '$text-color': '#fff',
-  '$headings-color': '#fff',
-  '$body-bg': '#000',
-  '$brand-primary': '#446487',
-  '$jumbotron-bg': backgroundSecondary,
-});
-
-const ipcRenderer = electron.ipcRenderer || false;
-
-const GlobalStyle = createGlobalStyle`
-  html, body {
-    min-width: 100%;
-    min-height: 100%;
-    margin: 0;
-  }
-  
-  body {
-    background: #000;
-    color: #fff;
-  }
-`;
-
-const Heading = styled(H3)`
-  display: inline-block;
-  margin-left: 10px;
-`;
+import Page from '../components/Page';
 
 const Message = styled.p`
   color: ${complementarySecondary};
@@ -58,8 +27,7 @@ const ProjectName = styled.p`
 `;
 
 const Home = () => {
-  const projects = useProjects();
-  console.log(projects);
+  const { projects, setProjects } = useProjects();
 
   const handleChooseRepository = useCallback(async () => {
     const { canceled, filePaths } = await remote.dialog.showOpenDialog({
@@ -71,17 +39,17 @@ const Home = () => {
     }
 
     const projectPath = filePaths[0];
-    if (ipcRenderer) ipcRenderer.send('add-project', projectPath);
+    const projects = await ipc.callMain('add-project', projectPath);
+    setProjects(projects);
   }, []);
 
-  const handleResetProjects = useCallback(() => {
-    if (ipcRenderer) ipcRenderer.send('reset-projects');
+  const handleResetProjects = useCallback(async () => {
+    const projects = await ipc.callMain('reset-projects');
+    setProjects(projects);
   }, []);
 
   return (
-    <BootstrapProvider theme={inkTheme}>
-      <GlobalStyle />
-
+    <Page>
       <Head>
         <title>ununu • Ink</title>
       </Head>
@@ -90,7 +58,9 @@ const Home = () => {
         <Row>
           <Col md={12} className="py-3">
             <Logo size={22} />
-            <Heading>Ink</Heading>
+            <Link href="/home">
+              <Heading>Ink</Heading>
+            </Link>
           </Col>
         </Row>
 
@@ -105,9 +75,13 @@ const Home = () => {
             projects.map(({ id, name, path }) => (
               <Row key={`project-${id}`}>
                 <Col md={12}>
-                  <ProjectName>
-                    {name} <code>{path}</code>
-                  </ProjectName>
+                  <Link href={`/project/${id}`}>
+                    <a href="#">
+                      <ProjectName>
+                        {name} <code>{path}</code>
+                      </ProjectName>
+                    </a>
+                  </Link>
                 </Col>
               </Row>
             ))
@@ -131,7 +105,7 @@ const Home = () => {
           </Row>
         </Jumbotron>
       </Container>
-    </BootstrapProvider>
+    </Page>
   );
 };
 

@@ -10,13 +10,4 @@ module.exports = withCSS({
     Object.assign(config, {
       target: 'electron-renderer',
     }),
-
-  async exportPathMap() {
-    return Object.assign(
-      {},
-      {
-        '/home': { page: '/home' },
-      }
-    );
-  },
 });

@@ -1,24 +1,17 @@
-import electron from 'electron';
 import { useEffect, useState } from 'react';
-
-const ipcRenderer = electron.ipcRenderer || false;
+import { ipcRenderer as ipc } from 'electron-better-ipc';
 
 export default function useProjects() {
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
-    if (ipcRenderer) {
-      const handleChanged = (event, projects) => {
-        setProjects(projects);
-      };
-
-      ipcRenderer.on('projects-changed', handleChanged);
-      ipcRenderer.send('fetch-projects');
-
-      return () =>
-        ipcRenderer.removeListener('projects-changed', handleChanged);
+    async function fetchProjects() {
+      const projects = await ipc.callMain('fetch-projects');
+      setProjects(projects);
     }
+
+    fetchProjects();
   }, []);
 
-  return projects;
+  return { projects, setProjects };
 }
