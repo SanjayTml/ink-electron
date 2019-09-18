@@ -43,3 +43,17 @@ export async function getProjectState(projectPath) {
 
   return state;
 }
+
+export async function commitProject(projectPath, commitMessage) {
+  const repo = await Git.Repository.open(`${projectPath}/.git`);
+  const index = await repo.refreshIndex();
+  await index.addAll();
+  await index.write();
+  const oid = await index.writeTree();
+  const head = await Git.Reference.nameToId(repo, 'HEAD');
+  const parent = await repo.getCommit(head);
+  const signature = await Git.Signature.default(repo);
+  const commitId = await repo.createCommit('HEAD', signature, signature, commitMessage, oid, [parent]);
+
+  return commitId;
+}

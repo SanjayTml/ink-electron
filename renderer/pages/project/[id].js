@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+import { ipcRenderer as ipc } from 'electron-better-ipc';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Col, Container, H5, H6, Jumbotron, Row } from '@bootstrap-styled/v4';
+import { Col, Container, H5, H6, Jumbotron, Row, Button } from '@bootstrap-styled/v4';
 import Logo from '../../components/Logo';
 import Heading from '../../components/Heading';
 import useProjects from '../../effects/useProjects';
@@ -17,6 +18,12 @@ export default function Repo() {
   // state is of the following structure:
   // state = { new: Array(), modified: Array(), deleted: Array() }
   const { state } = useProjectState(project ? project.path : null);
+
+  const handleCommitProject = useCallback(async (projectPath) => {
+    const commitMessage = 'Message';
+    const commitId = await ipc.callMain('commit-project', { projectPath, commitMessage });
+    console.log('commitId', commitId);
+  }, []);
 
   return (
     <Page>
@@ -59,6 +66,26 @@ export default function Repo() {
                 ))}
               </React.Fragment>
             )}
+            {state.modified && (
+              <React.Fragment>
+                <Row>
+                  <H6>Modified Files</H6>
+                </Row>
+
+                {state.modified.map((filePath, index) => (
+                  <Row key={`new-${index}`}>
+                    <Col md={12}>
+                      <code>{filePath}</code>
+                    </Col>
+                  </Row>
+                ))}
+              </React.Fragment>
+            )}
+            <Row>
+              <Button className="mr-2" onClick={(e) => handleCommitProject(project.path, e)}>
+                Sign
+              </Button>
+            </Row>
           </Jumbotron>
         )}
       </Container>

@@ -4,7 +4,7 @@ import serve from 'electron-serve';
 import * as Store from 'electron-store';
 import { ipcMain as ipc } from 'electron-better-ipc';
 import { createWindow, exitOnChange } from './helpers';
-import { getProjectState, validateProject } from './lib/project';
+import { getProjectState, validateProject, commitProject } from './lib/project';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -62,6 +62,18 @@ ipc.answerRenderer(
   'get-project-state',
   async projectPath => await getProjectState(projectPath)
 );
+
+ipc.answerRenderer(
+  'commit-project', async ({ projectPath, commitMessage }) => {
+    console.log(commitMessage)
+  try {
+    const id = await commitProject(projectPath, commitMessage)
+    return id;
+  } catch (err) {
+    console.error(err);
+    return;
+  }
+});
 
 (async () => {
   // Can't use app.on('ready',...)
