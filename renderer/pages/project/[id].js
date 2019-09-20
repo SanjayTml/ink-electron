@@ -42,7 +42,7 @@ export default function Repo() {
       event.stopPropagation();
     }
     const projectPath = project.path;
-    const commitId = await ipc.callMain('commit-project', { projectPath, commitMessage });
+    await ipc.callMain('commit-project', { projectPath, commitMessage });
 
     resetCommitMessage();
   }, [project, commitMessage]);

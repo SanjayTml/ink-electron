@@ -9,6 +9,15 @@ export async function validateProject(projectPath) {
   } catch (err) {
     if (err.errno === Git.Error.CODE.ENOTFOUND) {
       const repo = await Git.Repository.init(`${projectPath}/.git`, 0);
+
+      // Create initial commit
+      const index = await repo.refreshIndex();
+      await index.addAll();
+      await index.write();
+      const oid = await index.writeTree();
+      const signature = await Git.Signature.default(repo);
+
+      await repo.createCommit('HEAD', signature, signature, 'initial commit', oid, []);
       console.log('REPO CREATED', repo); // TODO: use `debug` module
     } else {
       throw err;
@@ -53,7 +62,7 @@ export async function commitProject(projectPath, commitMessage) {
   const head = await Git.Reference.nameToId(repo, 'HEAD');
   const parent = await repo.getCommit(head);
   const signature = await Git.Signature.default(repo);
-  const commitId = await repo.createCommit('HEAD', signature, signature, commitMessage, oid, [parent]);
+  await repo.createCommit('HEAD', signature, signature, commitMessage, oid, [parent]);
 
-  return commitId;
+  return;
 }

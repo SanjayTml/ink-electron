@@ -65,7 +65,6 @@ ipc.answerRenderer(
 
 ipc.answerRenderer(
   'commit-project', async ({ projectPath, commitMessage }) => {
-    console.log(commitMessage)
   try {
     const id = await commitProject(projectPath, commitMessage)
     return id;
