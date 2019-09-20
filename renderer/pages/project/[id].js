@@ -3,12 +3,25 @@ import { ipcRenderer as ipc } from 'electron-better-ipc';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Col, Container, H5, H6, Jumbotron, Row, Button } from '@bootstrap-styled/v4';
+import {
+  Col,
+  Container,
+  H5,
+  H6,
+  Jumbotron,
+  Row,
+  Button,
+  Form,
+  FormGroup,
+  Label,
+  Input
+} from '@bootstrap-styled/v4';
 import Logo from '../../components/Logo';
 import Heading from '../../components/Heading';
 import useProjects from '../../effects/useProjects';
 import Page from '../../components/Page';
 import useProjectState from '../../effects/useProjectState';
+import useInput from '../../effects/useInput';
 
 export default function Repo() {
   const { query } = useRouter();
@@ -19,11 +32,20 @@ export default function Repo() {
   // state = { new: Array(), modified: Array(), deleted: Array() }
   const { state } = useProjectState(project ? project.path : null);
 
-  const handleCommitProject = useCallback(async (projectPath) => {
-    const commitMessage = 'Message';
+  const { value: commitMessage, bind: bindCommitMessage, reset: resetCommitMessage } = useInput('');
+
+  const handleSubmit = useCallback(async (event) => {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    if (form.checkValidity() === false) {
+      event.stopPropagation();
+    }
+    const projectPath = project.path;
     const commitId = await ipc.callMain('commit-project', { projectPath, commitMessage });
-    console.log('commitId', commitId);
-  }, []);
+
+    resetCommitMessage();
+  }, [project, commitMessage]);
 
   return (
     <Page>
@@ -51,7 +73,7 @@ export default function Repo() {
               </Col>
             </Row>
 
-            {state.new && (
+            {state.new && state.new.length > 0 && (
               <React.Fragment>
                 <Row>
                   <H6>New Files</H6>
@@ -66,7 +88,7 @@ export default function Repo() {
                 ))}
               </React.Fragment>
             )}
-            {state.modified && (
+            {state.modified && state.modified.length > 0 && (
               <React.Fragment>
                 <Row>
                   <H6>Modified Files</H6>
@@ -81,11 +103,17 @@ export default function Repo() {
                 ))}
               </React.Fragment>
             )}
-            <Row>
-              <Button className="mr-2" onClick={(e) => handleCommitProject(project.path, e)}>
-                Sign
-              </Button>
-            </Row>
+            {((state.new && state.new.length > 0) || (state.modified && state.modified.length > 0)) && (
+              <Form onSubmit={handleSubmit}>
+                <FormGroup>
+                  <Label>Message</Label>
+                  <Input required type="text" placeholder="Enter message" {...bindCommitMessage} />
+                </FormGroup>
+                <Button className="mr-2" type="submit">
+                  Sign
+                </Button>
+              </Form>
+            )}
           </Jumbotron>
         )}
       </Container>
