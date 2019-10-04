@@ -11,12 +11,19 @@ import {
   H5,
   Button,
   Jumbotron,
+  Form,
+  FormGroup,
+  Label,
+  Input
 } from '@bootstrap-styled/v4';
 import { complementarySecondary } from '../layout/colors';
 import useProjects from '../effects/useProjects';
+import useUser from '../effects/useUser';
 import Heading from '../components/Heading';
 import Logo from '../components/Logo';
 import Page from '../components/Page';
+import useInput from '../effects/useInput';
+import fetch from 'isomorphic-unfetch';
 
 const Message = styled.p`
   color: ${complementarySecondary};
@@ -27,7 +34,24 @@ const ProjectName = styled.p`
 `;
 
 const Home = () => {
+  const { user, setUser } = useUser();
   const { projects, setProjects } = useProjects();
+
+  const { value: email, bind: bindEmail, reset: resetEmail } = useInput('');
+  const { value: password, bind: bindPassword, reset: resetPassword } = useInput('');
+
+  const handleSubmit = useCallback(async (event) => {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    if (form.checkValidity() === false) {
+      event.stopPropagation();
+    }
+
+    // TODO call API once platform in place
+    const user = await ipc.callMain('set-user', { email, password });
+    setUser(user);
+  }, [email, password]);
 
   const handleChooseRepository = useCallback(async () => {
     const { canceled, filePaths } = await remote.dialog.showOpenDialog({
@@ -64,9 +88,10 @@ const Home = () => {
           </Col>
         </Row>
 
-        <Jumbotron className="py-3">
+        {user && user.email ? (<Jumbotron className="py-3">
           <Row>
             <Col md={12}>
+              <H5>Welcome {user.email}</H5>
               <H5>Your Projects</H5>
             </Col>
           </Row>
@@ -104,6 +129,23 @@ const Home = () => {
             </Col>
           </Row>
         </Jumbotron>
+      ) : (
+        <Jumbotron className="py-3">
+          <Form onSubmit={handleSubmit}>
+            <FormGroup>
+              <Label>Email</Label>
+              <Input required type="email" placeholder="Enter email" {...bindEmail} />
+            </FormGroup>
+            <FormGroup>
+              <Label>Password</Label>
+              <Input required type="password" placeholder="Enter password" {...bindPassword} />
+            </FormGroup>
+            <Button className="mr-2" type="submit">
+              Login
+            </Button>
+          </Form>
+        </Jumbotron>
+      )}
       </Container>
     </Page>
   );
