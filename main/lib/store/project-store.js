@@ -1,9 +1,9 @@
 import { Store } from "./store";
 
-var defaultDoc = "store";
-var objectName = "projects";
-var defaultValue = [];
-var projectStore;
+const defaultDoc = "store";
+const objectName = "projects";
+const defaultValue = [];
+let projectStore;
 
 export function init() {
 	projectStore = new Store(defaultDoc, objectName, defaultValue);
