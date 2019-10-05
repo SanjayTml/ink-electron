@@ -1,5 +1,4 @@
 import { basename } from 'path';
-import Git from 'nodegit';
 import * as projectStore from './store/project-store';
 import {gitCheckAndInit, gitProjectState, gitCommit} from './git/utils';
 import uuid from 'uuid/v4';
