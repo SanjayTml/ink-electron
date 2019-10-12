@@ -19,6 +19,10 @@ export function Project(id, name, path, type) {
 
 export function append(newProject) {
 	var projects = projectStore.get();
+	if (newProject.id == null || newProject.name == null || newProject.path == null) {
+		throw new Error('invalid project id/name/path');
+		return projects;
+	}
 	projects.push(newProject);
 	projectStore.set(projects);
 	return projects;
@@ -30,7 +34,7 @@ export function list() {
 
 export function reset() {
 	projectStore.set(defaultValue);
-	return [];
+	return list();
 }
 
 export function getByPath(path) {
