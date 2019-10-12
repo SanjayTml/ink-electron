@@ -1,16 +1,17 @@
 import Git from 'nodegit';
+import 'path';
 
 export async function gitCheckAndInit(projectPath) {
 	try {
-		const repo = await Git.Repository.open(`${projectPath}/.git`);
-	    console.log('REPO EXISTED', repo); // TODO: use `debug` module
+		await Git.Repository.open(`${projectPath}/.git`);
+		console.log('ALREADY INITIALIZED', projectPath); // TODO: use `debug` module
 	} catch (err) {
-	    if (err.errno === Git.Error.CODE.ENOTFOUND) {
-	    	const repo = await Git.Repository.init(`${projectPath}/.git`, 0);
+		if (err.errno === Git.Error.CODE.ENOTFOUND) {
+			const repo = await Git.Repository.init(`${projectPath}/.git`, 0);
 			console.log('REPO CREATED', repo); // TODO: use `debug` module
 		} else {
-		    throw err;
-	    }
+			throw err;
+		}
 	}
 }
 
@@ -35,20 +36,20 @@ export async function gitStatus(projectPath) {
 	return state;
 }
 
-export async function gitCommit(prjectPath, commitMessage) {
+export async function gitCommit(projectPath, commitMessage) {
 	try {
-	    const repo = await Git.Repository.open(`${projectPath}/.git`);
-	    const index = await repo.refreshIndex();
-	    await index.addAll();
-	    await index.write();
-	    const oid = await index.writeTree();
-	    const head = await Git.Reference.nameToId(repo, 'HEAD');
-	    const parent = await repo.getCommit(head);
-	    const signature = await Git.Signature.default(repo);
-	    await repo.createCommit('HEAD', signature, signature, commitMessage, oid, [parent]);
-	    return 0;// TODO: Return the id
-    } catch (err) {
-	    console.error(err);
-	    return;
-    }
+		const repo = await Git.Repository.open(`${projectPath}/.git`);
+		const index = await repo.refreshIndex();
+		await index.addAll();
+		await index.write();
+		const oid = await index.writeTree();
+		const head = await Git.Reference.nameToId(repo, 'HEAD');
+		const parent = await repo.getCommit(head);
+		const signature = await Git.Signature.default(repo);
+		await repo.createCommit('HEAD', signature, signature, commitMessage, oid, [parent]);
+		return 0;// TODO: Return the id
+	} catch (err) {
+		console.error(err);
+		return;
+	}
 }
