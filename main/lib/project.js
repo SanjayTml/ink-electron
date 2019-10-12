@@ -1,25 +1,37 @@
 import { basename } from 'path';
 import * as projectStore from './store/project-store';
-import {gitCheckAndInit, gitProjectState, gitCommit} from './git/utils';
+import { gitCheckAndInit, gitStatus, gitCommit } from './git/utils';
 import uuid from 'uuid/v4';
+import { initInkFile, loadInkFile } from './ink-file/ink-file';
 
-export async function initProject(projectPath) {
-  // Check if the project is Unique and doesnt already exsist. 
-  if(projectStore.getByPath(projectPath) != null) {
-    console.error("PROJECT ALREADY EXISTS", projectPath);
+export async function initProject (projectPath) {
+  // Check if the project is Unique and doesnt already exsist.
+  if (projectStore.getByPath(projectPath) != undefined) {
+    console.error("PROJECT ALREADY EXISTS", projectStore.getByPath(projectPath));
     return;
   }
-  // Check if git is already initialized, if not then do it. 
+  let name = basename(projectPath);
+  // Check if git is already initialized, if not then do it.
   await gitCheckAndInit(projectPath);
+  initInkFile(name, projectPath);
   return new projectStore.Project(
     uuid(),
-    basename(projectPath),
+    name,
     projectPath,
-    'ableton-project');  
+    'ableton-project');
+}
+
+export async function addProject(projectPath) {
+  var project = await initProject(projectPath);
+  return projectStore.append(project);
 }
 
 export async function getProjectState(projectPath) {
-  return await gitStatus(projectPath);
+  var inkFile = loadInkFile(projectPath);
+  console.log(inkFile);
+  // TODO: Use the state of the ink file
+  var status = await gitStatus(projectPath);
+  return status;
 }
 
 export async function commitProject(projectPath, commitMessage) {
