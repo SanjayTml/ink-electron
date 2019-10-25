@@ -1,81 +1,39 @@
 import { basename } from 'path';
-import Git from 'nodegit';
-import * as projectStore from './store/project-store'
+import * as projectStore from './store/project-store';
+import { gitCheckAndInit, gitStatus, gitCommit } from './git/utils';
 import uuid from 'uuid/v4';
+import { initInkFile, loadInkFile } from './ink-file/ink-file';
 
-export async function initProject(projectPath) {
-
-  // Check if the project is Unique and doesnt already exsist. 
-  if(projectStore.getByPath(projectPath) != null) {
-    console.error("PROJECT ALREADY EXISTS", projectPath);
+export async function initProject (projectPath) {
+  // Check if the project is Unique and doesnt already exsist.
+  if (projectStore.getByPath(projectPath) != undefined) {
+    console.error("PROJECT ALREADY EXISTS", projectStore.getByPath(projectPath));
     return;
   }
-
-  try {
-    const repo = await Git.Repository.open(`${projectPath}/.git`);
-    console.log('REPO EXISTED', repo); // TODO: use `debug` module
-  } catch (err) {
-    if (err.errno === Git.Error.CODE.ENOTFOUND) {
-      const repo = await Git.Repository.init(`${projectPath}/.git`, 0);
-
-      // Create initial commit
-      const index = await repo.refreshIndex();
-      await index.addAll();
-      await index.write();
-      const oid = await index.writeTree();
-      const signature = await Git.Signature.default(repo);
-
-      await repo.createCommit('HEAD', signature, signature, 'initial commit', oid, []);
-      console.log('REPO CREATED', repo); // TODO: use `debug` module
-    } else {
-      throw err;
-    }
-  }
-
+  let name = basename(projectPath);
+  // Check if git is already initialized, if not then do it.
+  await gitCheckAndInit(projectPath);
+  initInkFile(name, projectPath);
   return new projectStore.Project(
     uuid(),
-    basename(projectPath),
+    name,
     projectPath,
-    'ableton-project');  
+    'ableton-project');
+}
+
+export async function addProject(projectPath) {
+  var project = await initProject(projectPath);
+  return projectStore.append(project);
 }
 
 export async function getProjectState(projectPath) {
-  const repo = await Git.Repository.open(`${projectPath}/.git`);
-  const statuses = await repo.getStatus();
-
-  const state = {
-    modified: [],
-    new: [],
-    deleted: [],
-  };
-
-  statuses.forEach(file => {
-    if (file.isModified()) {
-      state.modified.push(file.path());
-    } else if (file.isNew()) {
-      state.new.push(file.path());
-    } else if (file.isDeleted()) {
-      state.deleted.push(file.path());
-    }
-  });
-
-  return state;
+  var inkFile = loadInkFile(projectPath);
+  console.log(inkFile);
+  // TODO: Use the state of the ink file
+  var status = await gitStatus(projectPath);
+  return status;
 }
 
 export async function commitProject(projectPath, commitMessage) {
-  try {
-    const repo = await Git.Repository.open(`${projectPath}/.git`);
-    const index = await repo.refreshIndex();
-    await index.addAll();
-    await index.write();
-    const oid = await index.writeTree();
-    const head = await Git.Reference.nameToId(repo, 'HEAD');
-    const parent = await repo.getCommit(head);
-    const signature = await Git.Signature.default(repo);
-    await repo.createCommit('HEAD', signature, signature, commitMessage, oid, [parent]);
-    return 0;// TODO: Return the id
-  } catch (err) {
-    console.error(err);
-    return;
-  }
+  return await gitCommit(projectPath, commitMessage);
 }

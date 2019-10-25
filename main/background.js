@@ -5,7 +5,7 @@ import { app } from "electron";
 import serve from "electron-serve";
 import { ipcMain as ipc } from "electron-better-ipc";
 import { createWindow, exitOnChange } from "./helpers";
-import { getProjectState, initProject, commitProject } from "./lib/project";
+import { getProjectState, initProject, commitProject, addProject } from "./lib/project";
 import * as projectStore from "./lib/store/project-store";
 import * as userStore from "./lib/store/user-store";
 
@@ -50,14 +50,12 @@ ipc.answerRenderer("fetch-projects", () => projectStore.list());
 ipc.answerRenderer("reset-projects", () => projectStore.reset());
 
 ipc.answerRenderer("add-project", async projectPath => {
-  var project = await initProject(projectPath);
-  return projectStore.append(project);
+  return await addProject(projectPath);
 });
 
-ipc.answerRenderer(
-  "get-project-state",
-  async projectPath => await getProjectState(projectPath)
-);
+ipc.answerRenderer("get-project-state",async projectPath => {
+  return await getProjectState(projectPath);
+});
 
 ipc.answerRenderer("commit-project", async ({ projectPath, commitMessage }) => {
   return await commitProject(projectPath, commitMessage);
