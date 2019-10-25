@@ -43,10 +43,18 @@ export async function gitCommit(projectPath, commitMessage) {
 		await index.addAll();
 		await index.write();
 		const oid = await index.writeTree();
-		const head = await Git.Reference.nameToId(repo, 'HEAD');
-		const parent = await repo.getCommit(head);
+
+		const headCommit =  await repo.getHeadCommit();
+		let parents = []
+		if (headCommit) {
+			const head = await Git.Reference.nameToId(repo, 'HEAD');
+			const parent = await repo.getCommit(head);
+			parents = [parent]
+		}
+
 		const signature = await Git.Signature.default(repo);
-		await repo.createCommit('HEAD', signature, signature, commitMessage, oid, [parent]);
+
+		await repo.createCommit('HEAD', signature, signature, commitMessage, oid, parents);
 		return 0;// TODO: Return the id
 	} catch (err) {
 		console.error(err);
