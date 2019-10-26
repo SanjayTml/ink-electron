@@ -14,7 +14,7 @@ import {
   Form,
   FormGroup,
   Label,
-  Input
+  Input,
 } from '@bootstrap-styled/v4';
 import Logo from '../../components/Logo';
 import Heading from '../../components/Heading';
@@ -32,20 +32,31 @@ export default function Repo() {
   // state = { new: Array(), modified: Array(), deleted: Array() }
   const { state } = useProjectState(project ? project.path : null);
 
-  const { value: commitMessage, bind: bindCommitMessage, reset: resetCommitMessage } = useInput('');
+  const {
+    value: commitMessage,
+    bind: bindCommitMessage,
+    reset: resetCommitMessage,
+  } = useInput('');
 
-  const handleSubmit = useCallback(async (event) => {
-    event.preventDefault();
+  if (typeof window !== 'undefined' && project) {
+    ipc.callMain('get-project-history', project.path).then(console.log);
+  }
 
-    const form = event.currentTarget;
-    if (form.checkValidity() === false) {
-      event.stopPropagation();
-    }
-    const projectPath = project.path;
-    await ipc.callMain('commit-project', { projectPath, commitMessage });
+  const handleSubmit = useCallback(
+    async event => {
+      event.preventDefault();
 
-    resetCommitMessage();
-  }, [project, commitMessage]);
+      const form = event.currentTarget;
+      if (form.checkValidity() === false) {
+        event.stopPropagation();
+      }
+      const projectPath = project.path;
+      await ipc.callMain('commit-project', { projectPath, commitMessage });
+
+      resetCommitMessage();
+    },
+    [project, commitMessage]
+  );
 
   return (
     <Page>
@@ -103,11 +114,17 @@ export default function Repo() {
                 ))}
               </React.Fragment>
             )}
-            {((state.new && state.new.length > 0) || (state.modified && state.modified.length > 0)) && (
+            {((state.new && state.new.length > 0) ||
+              (state.modified && state.modified.length > 0)) && (
               <Form onSubmit={handleSubmit}>
                 <FormGroup>
                   <Label>Message</Label>
-                  <Input required type="text" placeholder="Enter message" {...bindCommitMessage} />
+                  <Input
+                    required
+                    type="text"
+                    placeholder="Enter message"
+                    {...bindCommitMessage}
+                  />
                 </FormGroup>
                 <Button className="mr-2" type="submit">
                   Sign
