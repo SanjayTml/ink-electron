@@ -58,5 +58,6 @@ ipc.answerRenderer("get-project-state",async projectPath => {
 });
 
 ipc.answerRenderer("commit-project", async ({ projectPath, commitMessage }) => {
-  return await commitProject(projectPath, commitMessage);
+  const user = userStore.get()
+  return await commitProject(projectPath, commitMessage, user);
 });

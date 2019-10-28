@@ -36,7 +36,7 @@ export async function gitStatus(projectPath) {
 	return state;
 }
 
-export async function gitCommit(projectPath, commitMessage) {
+export async function gitCommit(projectPath, commitMessage, user) {
 	try {
 		const repo = await Git.Repository.open(`${projectPath}/.git`);
 		const index = await repo.refreshIndex();
@@ -44,7 +44,9 @@ export async function gitCommit(projectPath, commitMessage) {
 		await index.write();
 		const oid = await index.writeTree();
 
+		// Fetching parents to create commit
 		const headCommit =  await repo.getHeadCommit();
+		// If no commit yet, parents is an empty array
 		let parents = []
 		if (headCommit) {
 			const head = await Git.Reference.nameToId(repo, 'HEAD');
@@ -52,11 +54,14 @@ export async function gitCommit(projectPath, commitMessage) {
 			parents = [parent]
 		}
 
-		const signature = await Git.Signature.default(repo);
+		// Using logged in user email as signature's name and email
+		// Can be changed later on when the collaboration platform is in place
+		const signature = await Git.Signature.now(user.email, user.email)
 
 		await repo.createCommit('HEAD', signature, signature, commitMessage, oid, parents);
-		return 0;// TODO: Return the id
+		return 0; // TODO Return the id
 	} catch (err) {
+		// TODO Handle error to display to the user
 		console.error(err);
 		return;
 	}
