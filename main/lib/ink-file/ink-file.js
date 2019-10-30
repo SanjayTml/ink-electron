@@ -5,6 +5,7 @@ export class InkFile {
     constructor(name, path) {
         this.name = name;
         this.path = path;
+        this.tracks = 0;
     }
     save() {
         let jsonObj = JSON.stringify(this, null, 2);

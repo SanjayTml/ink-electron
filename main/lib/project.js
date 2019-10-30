@@ -1,6 +1,6 @@
 import { basename } from 'path';
 import * as projectStore from './store/project-store';
-import {gitCheckAndInit, gitProjectState, gitCommit} from './git/utils';
+import {gitCheckAndInit, gitStatus, gitCommit} from './git/utils';
 import uuid from 'uuid/v4';
 import { initInkFile, loadInkFile, applyDiff } from './ink-file/ink-file';
 import { getParsedDiff } from './parser/parser';
@@ -23,16 +23,16 @@ export async function initProject (path) {
 }
 
 export async function addProject(path) {
-  var project = await initProject(path);
+  let project = await initProject(path);
   return projectStore.append(project);
 }
 
 export async function getProjectState(path) {
   loadInkFile(path);
   let delta = await getParsedDiff(path);
-  console.log(delta);
+  // console.log(delta);
   // TODO: Use the state of the ink file
-  var status = await gitStatus(path);
+  let status = await gitStatus(path);
   return status;
 }
 
