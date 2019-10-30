@@ -2,26 +2,41 @@ import { basename } from 'path';
 import * as projectStore from './store/project-store';
 import {gitCheckAndInit, gitProjectState, gitCommit} from './git/utils';
 import uuid from 'uuid/v4';
+import { initInkFile, loadInkFile, applyDiff } from './ink-file/ink-file';
+import { getParsedDiff } from './parser/parser';
 
-export async function initProject(projectPath) {
-  // Check if the project is Unique and doesnt already exsist. 
-  if(projectStore.getByPath(projectPath) != null) {
-    console.error("PROJECT ALREADY EXISTS", projectPath);
+export async function initProject (path) {
+  // Check if the project is Unique and doesnt already exsist.
+  if (projectStore.getByPath(path) != undefined) {
+    console.error("PROJECT ALREADY EXISTS", projectStore.getByPath(path));
     return;
   }
-  // Check if git is already initialized, if not then do it. 
-  await gitCheckAndInit(projectPath);
+  let name = basename(path);
+  // Check if git is already initialized, if not then do it.
+  await gitCheckAndInit(path);
+  initInkFile(name, path);
   return new projectStore.Project(
     uuid(),
-    basename(projectPath),
-    projectPath,
-    'ableton-project');  
+    name,
+    path,
+    'ableton-project');
 }
 
-export async function getProjectState(projectPath) {
-  return await gitStatus(projectPath);
+export async function addProject(path) {
+  var project = await initProject(path);
+  return projectStore.append(project);
 }
 
-export async function commitProject(projectPath, commitMessage) {
-  return await gitCommit(projectPath, commitMessage);
+export async function getProjectState(path) {
+  loadInkFile(path);
+  let delta = await getParsedDiff(path);
+  console.log(delta);
+  // TODO: Use the state of the ink file
+  var status = await gitStatus(path);
+  return status;
+}
+
+export async function commitProject(path, commitMessage, delta) {
+  applyDiff(delta);
+  return await gitCommit(path, commitMessage);
 }
