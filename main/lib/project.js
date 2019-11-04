@@ -34,6 +34,6 @@ export async function getProjectState(projectPath) {
   return status;
 }
 
-export async function commitProject(projectPath, commitMessage) {
-  return await gitCommit(projectPath, commitMessage);
+export async function commitProject(projectPath, commitMessage, user) {
+  return await gitCommit(projectPath, commitMessage, user);
 }
