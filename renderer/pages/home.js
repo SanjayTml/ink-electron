@@ -5,7 +5,6 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { default as styled } from 'styled-components';
 import {
-  Container,
   Row,
   Col,
   H5,
@@ -19,9 +18,9 @@ import {
 import { complementarySecondary } from '../layout/colors';
 import useProjects from '../effects/useProjects';
 import useUser from '../effects/useUser';
-import Heading from '../components/Heading';
-import Logo from '../components/Logo';
 import Page from '../components/Page';
+import Header from '../components/Header';
+import Panel from '../components/Panel';
 import useInput from '../effects/useInput';
 import fetch from 'isomorphic-unfetch';
 
@@ -77,57 +76,62 @@ const Home = () => {
       <Head>
         <title>ununu • Ink</title>
       </Head>
-
-      <Container>
-        <Row>
-          <Col md={12} className="py-3">
-            <Link href="/home">
-              <Logo size={30} />
-            </Link>
-          </Col>
-        </Row>
-
-        {user && user.email ? (<Jumbotron className="py-3">
+      <Header user={user} />
+      <div>
+        {user && user.email ? (<div>
           <Row>
-            <Col md={12}>
-              <H5>Welcome {user.email}</H5>
-              <H5>Your Projects</H5>
-            </Col>
-          </Row>
-
-          {projects.length > 0 ? (
-            projects.map(({ id, name, path }) => (
-              <Row key={`project-${id}`}>
+            <Panel md={2}/>
+            <Col className="bg-info p-3">
+              <Row>
                 <Col md={12}>
-                  <Link href={`/project/${id}`}>
-                    <a href="#">
-                      <ProjectName>
-                        {name} <code>{path}</code>
-                      </ProjectName>
-                    </a>
-                  </Link>
+                  <H5>Projects</H5>
                 </Col>
               </Row>
-            ))
-          ) : (
-            <Row>
-              <Col md={12}>
-                <Message>You have no active projects.</Message>
-              </Col>
-            </Row>
-          )}
 
-          <Row>
-            <Col md={12}>
-              <Button className="mr-2" onClick={handleChooseRepository}>
-                Add Repository
-              </Button>
-              <Button className="mr-2" onClick={handleResetProjects}>
-                Reset Projects
-              </Button>
+              {projects.length > 0 ? (
+                projects.map(({ id, name, path }) => (
+                  <Row key={`project-${id}`}>
+                    <Col md={12}>
+                      <Link href={`/project/${id}`}>
+                        <a href="#">
+                          <ProjectName>
+                            {name}
+                          </ProjectName>
+                        </a>
+                      </Link>
+                    </Col>
+                  </Row>
+                ))
+              ) : (
+                <Row>
+                  <Col md={12}>
+                    <Message>You have no active projects.</Message>
+                  </Col>
+                </Row>
+              )}
+
+              <Row>
+                <Col md={12}>
+                  <Button className="mr-2" onClick={handleChooseRepository}>
+                    Add
+                  </Button>
+                  <Button className="mr-2" color="secondary">
+                    Clone
+                  </Button>
+                  <Button className="mr-2" color="info">
+                    Search
+                  </Button>
+                  {/*<Button className="mr-2" onClick={handleResetProjects}>
+                    Reset Projects
+                  </Button>*/}
+                </Col>
+              </Row>
             </Col>
+
+            <Panel md={3}>
+            </Panel>
           </Row>
-        </Jumbotron>
+        </div>
       ) : (
         <Jumbotron className="py-3">
           <Form onSubmit={handleSubmit}>
@@ -145,7 +149,7 @@ const Home = () => {
           </Form>
         </Jumbotron>
       )}
-      </Container>
+      </div>
     </Page>
   );
 };

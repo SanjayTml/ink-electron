@@ -9,9 +9,9 @@ const GlobalStyle = createGlobalStyle`
     min-height: 100%;
     margin: 0;
   }
-  
+
   body {
-    background: #000;
+    background: #181818;
   }
 `;
 

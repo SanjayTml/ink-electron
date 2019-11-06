@@ -5,10 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
   Col,
-  Container,
   H5,
   H6,
-  Jumbotron,
   Row,
   Button,
   Form,
@@ -17,15 +15,19 @@ import {
   Input
 } from '@bootstrap-styled/v4';
 import Logo from '../../components/Logo';
-import Heading from '../../components/Heading';
+import Header from '../../components/Header';
 import useProjects from '../../effects/useProjects';
 import Page from '../../components/Page';
+import Panel from '../../components/Panel';
+import PanelHeader from '../../components/PanelHeader';
 import useProjectState from '../../effects/useProjectState';
 import useInput from '../../effects/useInput';
+import useUser from '../../effects/useUser';
 
 export default function Repo() {
   const { query } = useRouter();
   const { projects } = useProjects();
+  const { user } = useUser();
   const project = projects.find(project => project.id === query.id);
 
   // state is of the following structure:
@@ -52,71 +54,72 @@ export default function Repo() {
       <Head>
         <title>ununu • Ink</title>
       </Head>
-
-      <Container>
-        <Row>
-          <Col md={12} className="py-3">
-            <Logo size={22} />
-            <Link href="/home">
-              <Heading>Ink</Heading>
-            </Link>
-          </Col>
-        </Row>
+      <Header user={user} />
+      <div>
 
         {project && (
-          <Jumbotron className="py-3">
-            <Row>
-              <Col md={12}>
-                <H5>
-                  Repository for <code>{project.name}</code>
-                </H5>
-              </Col>
-            </Row>
-
-            {state.new && state.new.length > 0 && (
-              <React.Fragment>
-                <Row>
-                  <H6>New Files</H6>
-                </Row>
-
-                {state.new.map((filePath, index) => (
-                  <Row key={`new-${index}`}>
-                    <Col md={12}>
-                      <code>{filePath}</code>
-                    </Col>
+          <Row>
+            <Panel md={3}>
+              <PanelHeader title="Local changes" fontWeight="bold" />
+              {state.new && state.new.length > 0 && (
+                <React.Fragment>
+                  <Row>
+                    <H6>New Files</H6>
                   </Row>
-                ))}
-              </React.Fragment>
-            )}
-            {state.modified && state.modified.length > 0 && (
-              <React.Fragment>
-                <Row>
-                  <H6>Modified Files</H6>
-                </Row>
 
-                {state.modified.map((filePath, index) => (
-                  <Row key={`new-${index}`}>
-                    <Col md={12}>
-                      <code>{filePath}</code>
-                    </Col>
+                  {state.new.map((filePath, index) => (
+                    <Row key={`new-${index}`}>
+                      <Col md={12}>
+                        <code>{filePath}</code>
+                      </Col>
+                    </Row>
+                  ))}
+                </React.Fragment>
+              )}
+              {state.modified && state.modified.length > 0 && (
+                <React.Fragment>
+                  <Row>
+                    <H6>Modified Files</H6>
                   </Row>
-                ))}
-              </React.Fragment>
-            )}
-            {((state.new && state.new.length > 0) || (state.modified && state.modified.length > 0)) && (
-              <Form onSubmit={handleSubmit}>
-                <FormGroup>
-                  <Label>Message</Label>
-                  <Input required type="text" placeholder="Enter message" {...bindCommitMessage} />
-                </FormGroup>
-                <Button className="mr-2" type="submit">
-                  Sign
-                </Button>
-              </Form>
-            )}
-          </Jumbotron>
+
+                  {state.modified.map((filePath, index) => (
+                    <Row key={`new-${index}`}>
+                      <Col md={12}>
+                        <code>{filePath}</code>
+                        </Col>
+                    </Row>
+                  ))}
+                </React.Fragment>
+              )}
+              {((state.new && state.new.length > 0) || (state.modified && state.modified.length > 0)) && (
+                <Form onSubmit={handleSubmit}>
+                  <FormGroup>
+                    <Label>Message</Label>
+                    <Input required type="text" placeholder="Enter message" {...bindCommitMessage} />
+                  </FormGroup>
+                  <Button className="mr-2" type="submit">
+                    Sign
+                  </Button>
+                </Form>
+              )}
+            </Panel>
+            <Col className="bg-info p-3">
+              <Row>
+                <Col md={12}>
+                  <H5>
+                    {project.name}
+                  </H5>
+                </Col>
+              </Row>
+
+
+            </Col>
+            <Panel md={3}>
+              <PanelHeader title="Chat" fontWeight="500" />
+            </Panel>
+          </Row>
         )}
-      </Container>
+      </div>
     </Page>
   );
 }

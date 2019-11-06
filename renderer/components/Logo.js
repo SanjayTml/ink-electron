@@ -5,11 +5,11 @@ const Svg = styled.svg`
   display: inline-block;
 `;
 
-export default function Logo({ size }) {
+export default function Logo({ width, height }) {
   return (
     <Svg
-      width={size}
-      height={size}
+      width={width}
+      height={height}
       viewBox="0 0 30 12"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
