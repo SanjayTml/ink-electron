@@ -81,9 +81,8 @@ const Home = () => {
       <Container>
         <Row>
           <Col md={12} className="py-3">
-            <Logo size={22} />
             <Link href="/home">
-              <Heading>Ink</Heading>
+              <Logo size={30} />
             </Link>
           </Col>
         </Row>
