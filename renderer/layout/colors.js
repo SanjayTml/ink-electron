@@ -10,3 +10,5 @@ export const complementarySecondary = '#ef7280';
 export const buttonPrimary = '#A3C4CB';
 export const buttonSecondary = '#FADABC';
 export const buttonInfo = '#929292';
+
+export const inputBackground = '#222222';

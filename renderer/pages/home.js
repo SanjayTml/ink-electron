@@ -13,7 +13,6 @@ import {
   Form,
   FormGroup,
   Label,
-  Input
 } from '@bootstrap-styled/v4';
 import { complementarySecondary } from '../layout/colors';
 import useProjects from '../effects/useProjects';
@@ -21,6 +20,7 @@ import useUser from '../effects/useUser';
 import Page from '../components/Page';
 import Header from '../components/Header';
 import Panel from '../components/Panel';
+import Input from '../components/Input';
 import useInput from '../effects/useInput';
 import fetch from 'isomorphic-unfetch';
 

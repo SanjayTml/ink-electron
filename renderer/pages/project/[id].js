@@ -12,12 +12,14 @@ import {
   Form,
   FormGroup,
   Label,
-  Input
+
 } from '@bootstrap-styled/v4';
 import Logo from '../../components/Logo';
 import Header from '../../components/Header';
 import useProjects from '../../effects/useProjects';
 import Page from '../../components/Page';
+import Input from '../../components/Input';
+import Textarea from '../../components/Textarea';
 import Panel from '../../components/Panel';
 import PanelHeader from '../../components/PanelHeader';
 import useProjectState from '../../effects/useProjectState';
@@ -61,7 +63,7 @@ export default function Repo() {
           <Row>
             <Panel md={3}>
               <PanelHeader title="Local changes" fontWeight="bold" />
-              {state.new && state.new.length > 0 && (
+              {/*state.new && state.new.length > 0 && (
                 <React.Fragment>
                   <Row>
                     <H6>New Files</H6>
@@ -75,8 +77,8 @@ export default function Repo() {
                     </Row>
                   ))}
                 </React.Fragment>
-              )}
-              {state.modified && state.modified.length > 0 && (
+              )*/}
+              {/*state.modified && state.modified.length > 0 && (
                 <React.Fragment>
                   <Row>
                     <H6>Modified Files</H6>
@@ -90,18 +92,17 @@ export default function Repo() {
                     </Row>
                   ))}
                 </React.Fragment>
-              )}
-              {((state.new && state.new.length > 0) || (state.modified && state.modified.length > 0)) && (
-                <Form onSubmit={handleSubmit}>
-                  <FormGroup>
-                    <Label>Message</Label>
-                    <Input required type="text" placeholder="Enter message" {...bindCommitMessage} />
-                  </FormGroup>
-                  <Button className="mr-2" type="submit">
-                    Sign
-                  </Button>
-                </Form>
-              )}
+              )*/}
+
+              <Form onSubmit={handleSubmit} className="m-2">
+                <FormGroup>
+                  <Input required type="text" placeholder="Enter message" {...bindCommitMessage} />
+                </FormGroup>
+                <Button disabled={!((state.new && state.new.length > 0) || (state.modified && state.modified.length > 0))} className="mr-2" type="submit">
+                  Sign
+                </Button>
+              </Form>
+
             </Panel>
             <Col className="bg-info p-3">
               <Row>
@@ -115,7 +116,16 @@ export default function Repo() {
 
             </Col>
             <Panel md={3}>
-              <PanelHeader title="Chat" fontWeight="500" />
+              <PanelHeader title="Share" fontWeight="500" />
+              <Form className="m-2">
+                <FormGroup>
+                  <Input required type="email" placeholder="Enter emails" />
+                  <Textarea required placeholder="Write a message" className="mt-2"/>
+                </FormGroup>
+                <Button className="mr-2" type="submit">
+                  Send
+                </Button>
+              </Form>
             </Panel>
           </Row>
         )}

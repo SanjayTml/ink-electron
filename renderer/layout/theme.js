@@ -5,7 +5,8 @@ import {
   buttonInfo,
   backgroundPrimary,
   backgroundSecondary,
-  backgroundPanel
+  backgroundPanel,
+  inputBackground
 } from './colors';
 import '@ibm/plex/css/ibm-plex.css';
 
@@ -26,7 +27,12 @@ const inkTheme = makeTheme({
   '$btn-secondary-border': buttonSecondary,
   '$btn-secondary-color': '#fff',
   '$btn-info-bg': buttonInfo,
-  '$btn-line-height': '1em'
+  '$btn-line-height': '1em',
+  '$input-color': buttonInfo,
+  '$input-border-color': buttonInfo,
+  '$input-border-radius': '5px',
+  '$input-btn-border-width': '3px',
+  '$input-bg': inputBackground
 });
 
 export default inkTheme;
