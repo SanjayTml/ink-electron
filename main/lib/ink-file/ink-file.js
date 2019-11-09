@@ -11,7 +11,7 @@ export class InkFile {
         let jsonObj = JSON.stringify(this, null, 2);
         let configPath = pathJoin(this.path, 'ink.json');
         fs.writeFileSync(configPath, jsonObj);
-        console.log("New config initialised at:", configPath);
+        console.log("Config saved at:", configPath);
     }
 }
 export var defaultInkFile;

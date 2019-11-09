@@ -30,7 +30,7 @@ export async function addProject(path) {
 export async function getProjectState(path) {
   loadInkFile(path);
   let delta = await getParsedDiff(path);
-  // console.log(delta);
+  console.log(delta);
   // TODO: Use the state of the ink file
   let status = await gitStatus(path);
   return status;
