@@ -5,6 +5,7 @@ export class InkFile {
     constructor(name, path) {
         this.name = name;
         this.path = path;
+        this.tracks = 0;
     }
     save() {
         let jsonObj = JSON.stringify(this, null, 2);
@@ -13,16 +14,21 @@ export class InkFile {
         console.log("New config initialised at:", configPath);
     }
 }
+export var defaultInkFile;
 
 export function initInkFile(name, path) {
     let inkFile = new InkFile(name, path);
     inkFile.save();
-    return inkFile;
+    defaultInkFile = inkFile;
 }
 
 export function loadInkFile(path) {
     let configPath = pathJoin(path, 'ink.json');
     let config = JSON.parse(fs.readFileSync(configPath));
-    let inkFile = new InkFile(config.name, config.path);
-    return inkFile;
+    defaultInkFile = new InkFile(config.name, config.path);
+}
+
+export function applyDiff(delta) {
+    defaultInkFile.tracks = delta.tracks;
+    defaultInkFile.save();
 }
